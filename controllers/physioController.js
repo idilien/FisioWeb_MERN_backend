@@ -6,21 +6,19 @@ import generateJWT from "../helpers/generateJWT.js";
 import PhysioModel from "../models/PhysioModel.js";
 
 const register = async (req,res) => {
-
     const{name, email,password} = req.body;
-
     //Prevent duplicate users
     const existsUser = await PhysioModel.findOne({email});
     if(existsUser){
         const error = new Error('Usuario ya Registrado');
         return res.status(400).json({msg: error.message});
     }
-
     // Register new Physio
     try {
         const physio = new PhysioModel(req.body);
-        const physioSaved = await physio.save();    
-
+        const physioSaved = await physio.save(); 
+          
+    
         emailRegister({
             name,
             email,
@@ -76,7 +74,6 @@ const auth = async (req,res) => {
     //Check Password
     if(await user.checkPassword(password)){
         //JSON Web Token
-        // res.json({token: generateJWT(user.id)});
         res.json({
             _id: user._id,
             name: user.name,
@@ -145,6 +142,7 @@ const newPassword = async (req,res) => {
     }
 };
 
+//Update Profile
 const updateProfile  = async (req,res) => {
     const physio = await PhysioModel.findById(req.params.id)
     if(!physio){
@@ -163,6 +161,8 @@ const updateProfile  = async (req,res) => {
 
     try {
         physio.name = req.body.name ;
+        physio.mobile = req.body.mobile ;
+        physio.web = req.body.web ;
         physio.email = req.body.email ;
 
         const physioUpdate = await physio.save();
@@ -170,6 +170,30 @@ const updateProfile  = async (req,res) => {
         
     } catch (error) {
         console.log(error)
+    }
+};
+
+const updatePassword = async (req,res) => {
+  
+    //Read data
+    const {id} =req.physio
+    const {password_actual, password_new}  = req.body
+    
+    //Check physio exists
+    const physio = await PhysioModel.findById(id)
+    if(!physio){
+        const error = new Error('Error desde updatePasword')
+        return res.status(404).json({msg: error.message})
+    }
+    //Check password
+    if(await physio.checkPassword(password_actual)){
+        //Save new password
+        physio.password = password_new;
+        await physio.save()
+        res.json({msg: 'Password Actualizado' })
+    }else{
+        const error = new Error('Password No Válido')
+        return res.status(404).json({msg: error.message})
     }
 }
 
@@ -181,5 +205,6 @@ export {
     forgetPassword,
     checkToken, 
     newPassword,
-    updateProfile
+    updateProfile,
+    updatePassword
 }

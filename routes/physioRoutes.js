@@ -7,7 +7,8 @@ import {
         forgetPassword, 
         checkToken, 
         newPassword, 
-        updateProfile
+        updateProfile,
+        updatePassword
     } from "../controllers/physioController.js";
 import checkAuth from "../middleware/authMiddleware.js";
 
@@ -24,6 +25,7 @@ router.route('/forget-password/:token').get(checkToken).post(newPassword);
 //Private
 router.get('/profile', checkAuth, profile);
 router.put('/profile/:id', checkAuth, updateProfile);
+router.put('/update-password', checkAuth, updatePassword);
 
 
 export default router;
