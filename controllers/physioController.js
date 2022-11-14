@@ -24,7 +24,7 @@ const register = async (req,res) => {
             email,
             token: physioSaved.token
         });
-
+        
         res.json(physioSaved);
     } catch (error) {
         console.log(error);
